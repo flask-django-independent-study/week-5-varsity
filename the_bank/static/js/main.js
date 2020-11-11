@@ -89,10 +89,13 @@ closeAccount.addEventListener('click', () => {
 
 openAccountConfirm.addEventListener('click', () => {
   const accountHolder = document.getElementById('openAccountHolder')
+  const password = document.getElementById('openPassword')
   axios.post('/api/account', {
-    holder: accountHolder.value
+    holder: accountHolder.value,
+    password: password.value
   }).then(response => {
     accountHolder.value = ''
+    password.value = ''
     closeAllForms()
     if (response.data.error) {
       showDisplayError(response.data.error)
@@ -106,16 +109,26 @@ openAccountConfirm.addEventListener('click', () => {
 
 viewAccountConfirm.addEventListener('click', () => {
   const accountHolder = document.getElementById('viewAccountHolder')
-  axios.get(`/api/account/${accountHolder.value}`).then(response => {
+  const password = document.getElementById('viewPassword')
+  axios.put('/api/account', {
+    holder: accountHolder.value,
+    password: password.value
+  }).then(response => {
     accountHolder.value = ''
+    password.value = ''
     clearRightSide()
     if (response.data.error) {
       showDisplayError(response.data.error)
     } else {
       showDisplayAccount(response.data.holder, response.data.balance)
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
     }
   }).catch(error => {
     console.log(error)
+    accountHolder.value = ''
+    password.value = ''
+    clearRightSide()
+    showDisplayMessage('Incorrect Password')
   })
 })
 
@@ -159,8 +172,15 @@ withdrawConfirm.addEventListener('click', () => {
 
 closeAccountConfirm.addEventListener('click', () => {
   const accountHolder = document.getElementById('closeAccountHolder')
-  axios.delete(`/api/account/${accountHolder.value}`).then(response => {
+  const password = document.getElementById('closePassword')
+  axios.delete('/api/account', {
+    data: {
+      holder: accountHolder.value,
+      password: password.value
+    }
+  }).then(response => {
     accountHolder.value = ''
+    password.value = ''
     clearRightSide()
     if (response.data.error) {
       showDisplayError(response.data.error)
@@ -169,5 +189,9 @@ closeAccountConfirm.addEventListener('click', () => {
     }
   }).catch(error => {
     console.log(error)
+    accountHolder.value = ''
+    password.value = ''
+    clearRightSide()
+    showDisplayMessage('Incorrect Password')
   })
 })
